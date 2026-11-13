@@ -30,38 +30,6 @@ pip_map = {
     "★ Star": "★"
 }
 
-if "roll_result" not in st.session_state:
-    st.session_state.roll_result = 1
-
-dice_faces = {
-    1: [4],
-    2: [0,8],
-    3: [0,4,8],
-    4: [0,2,6,8],
-    5: [0,2,4,6,8],
-    6: [0,2,3,5,6,8]
-}
-
-placeholder = st.empty()
-
-if st.button("🎲 Roll D6"):
-    
-    # Animation
-    for _ in range(10):
-        temp = random.randint(1,6)
-        placeholder.markdown(
-            render_dice(
-                temp,
-                dice_colour,
-                pip_map[pip_style],
-                dice_size
-            ),
-            unsafe_allow_html=True
-        )
-        time.sleep(0.08)
-
-    st.session_state.roll_result = random.randint(1,6)
-
 def render_dice(number, colour, pip, size):
 
     positions = [""] * 9
@@ -100,6 +68,40 @@ def render_dice(number, colour, pip, size):
     html += "</div>"
 
     return html
+
+if "roll_result" not in st.session_state:
+    st.session_state.roll_result = 1
+
+dice_faces = {
+    1: [4],
+    2: [0,8],
+    3: [0,4,8],
+    4: [0,2,6,8],
+    5: [0,2,4,6,8],
+    6: [0,2,3,5,6,8]
+}
+
+placeholder = st.empty()
+
+if st.button("🎲 Roll D6"):
+    
+    # Animation
+    for _ in range(10):
+        temp = random.randint(1,6)
+        placeholder.markdown(
+            render_dice(
+                temp,
+                dice_colour,
+                pip_map[pip_style],
+                dice_size
+            ),
+            unsafe_allow_html=True
+        )
+        time.sleep(0.08)
+
+    st.session_state.roll_result = random.randint(1,6)
+
+
 
 placeholder.markdown(
     render_dice(
