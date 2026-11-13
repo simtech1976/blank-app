@@ -130,15 +130,16 @@ if st.button("🎲 Roll D6"):
     for _ in range(15):
         temp_roll = random.randint(1, 6)
 
-        dice_placeholder.components.v1.html(
-            render_dice(
-                temp_roll,
-                dice_colour,
-                symbol,
-                size
-            ),
-            height=size + 50
-        )
+        with dice_placeholder:
+            components.html(
+                render_dice(
+                    temp_roll,
+                    dice_colour,
+                    symbol,
+                    size
+                ),
+                height=size + 50
+            )
 
         time.sleep(0.05)
 
