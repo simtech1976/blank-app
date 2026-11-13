@@ -1,116 +1,164 @@
 import streamlit as st
 import random
 import time
+import streamlit.components.v1 as components
 
-st.set_page_config(page_title="DnD Dice Roller")
+st.set_page_config(page_title="DnD Dice Roller", layout="centered")
 
 st.title("🎲 DnD Dice Roller")
 
-# Theme options
-dice_colour = st.color_picker("Dice Colour", "#7B2CBF")
 
-pip_style = st.selectbox(
-    "Pip Style",
-    [
-        "● Classic",
-        "◆ Crystal",
-        "✦ Arcane",
-        "☠ Skull",
-        "★ Star"
-    ]
-)
+# ------------------------
+# Dice Renderer
+# ------------------------
 
-dice_size = st.slider("Dice Size", 80, 200, 120)
-
-pip_map = {
-    "● Classic": "●",
-    "◆ Crystal": "◆",
-    "✦ Arcane": "✦",
-    "☠ Skull": "☠",
-    "★ Star": "★"
+DICE_FACES = {
+    1: [4],
+    2: [0, 8],
+    3: [0, 4, 8],
+    4: [0, 2, 6, 8],
+    5: [0, 2, 4, 6, 8],
+    6: [0, 2, 3, 5, 6, 8],
 }
 
-def render_dice(number, colour, pip, size):
 
+def render_dice(number, colour, symbol, size):
     positions = [""] * 9
 
-    for pos in dice_faces[number]:
-        positions[pos] = pip
+    for pos in DICE_FACES[number]:
+        positions[pos] = symbol
 
-    html = f"""
-    <div style="
-        width:{size}px;
-        height:{size}px;
-        background:{colour};
-        border-radius:15px;
-        display:grid;
-        grid-template-columns:repeat(3,1fr);
-        grid-template-rows:repeat(3,1fr);
-        padding:10px;
-        font-size:{size//5}px;
-        box-shadow:0 0 25px rgba(0,0,0,0.3);
-        color:white;
-        margin:auto;
-    ">
-    """
+    cells = ""
 
-    for p in positions:
-        html += f"""
+    for pip in positions:
+        cells += f"""
         <div style="
             display:flex;
             justify-content:center;
             align-items:center;
+            font-size:{size//4}px;
+            color:white;
         ">
-            {p}
+            {pip}
         </div>
         """
 
-    html += "</div>"
-
-    return html
-
-if "roll_result" not in st.session_state:
-    st.session_state.roll_result = 1
-
-dice_faces = {
-    1: [4],
-    2: [0,8],
-    3: [0,4,8],
-    4: [0,2,6,8],
-    5: [0,2,4,6,8],
-    6: [0,2,3,5,6,8]
-}
-
-placeholder = st.empty()
-
-if st.button("🎲 Roll D6"):
-    
-    # Animation
-    for _ in range(10):
-        temp = random.randint(1,6)
-        placeholder.markdown(
-            render_dice(
-                temp,
-                dice_colour,
-                pip_map[pip_style],
-                dice_size
-            ),
-            unsafe_allow_html=True
-        )
-        time.sleep(0.08)
-
-    st.session_state.roll_result = random.randint(1,6)
+    return f"""
+    <div style="
+        width:{size}px;
+        height:{size}px;
+        background:{colour};
+        border-radius:20px;
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        grid-template-rows:repeat(3,1fr);
+        padding:10px;
+        box-sizing:border-box;
+        box-shadow:0px 6px 20px rgba(0,0,0,0.4);
+        margin:auto;
+    ">
+        {cells}
+    </div>
+    """
 
 
+# ------------------------
+# Customisation
+# ------------------------
 
-placeholder.markdown(
-    render_dice(
-        st.session_state.roll_result,
-        dice_colour,
-        pip_map[pip_style],
-        dice_size
-    ),
-    unsafe_allow_html=True
+dice_colour = st.color_picker(
+    "Dice Colour",
+    "#7B2CBF"
 )
 
-st.write(f"Result: **{st.session_state.roll_result}**")
+pip_style = st.selectbox(
+    "Pip Style",
+    [
+        "Classic",
+        "Crystal",
+        "Arcane",
+        "Star",
+        "Skull"
+    ]
+)
+
+size = st.slider(
+    "Dice Size",
+    80,
+    200,
+    120
+)
+
+symbols = {
+    "Classic": "●",
+    "Crystal": "◆",
+    "Arcane": "✦",
+    "Star": "★",
+    "Skull": "☠"
+}
+
+symbol = symbols[pip_style]
+
+# ------------------------
+# Session State
+# ------------------------
+
+if "result" not in st.session_state:
+    st.session_state.result = 1
+
+dice_placeholder = st.empty()
+
+
+def show_dice(value):
+    components.html(
+        render_dice(
+            value,
+            dice_colour,
+            symbol,
+            size
+        ),
+        height=size + 50
+    )
+
+
+# ------------------------
+# Roll Button
+# ------------------------
+
+if st.button("🎲 Roll D6"):
+
+    for _ in range(15):
+        temp_roll = random.randint(1, 6)
+
+        dice_placeholder.components.v1.html(
+            render_dice(
+                temp_roll,
+                dice_colour,
+                symbol,
+                size
+            ),
+            height=size + 50
+        )
+
+        time.sleep(0.05)
+
+    st.session_state.result = random.randint(1, 6)
+
+# ------------------------
+# Final Dice Display
+# ------------------------
+
+with dice_placeholder:
+    components.html(
+        render_dice(
+            st.session_state.result,
+            dice_colour,
+            symbol,
+            size
+        ),
+        height=size + 50
+    )
+
+st.markdown(
+    f"## Result: **{st.session_state.result}**"
+)
